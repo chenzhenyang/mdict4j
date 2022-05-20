@@ -222,11 +222,13 @@ public class MDictDictionary {
             if (moved != skipSize) {
                 throw new MDException("Decompressed data seems incorrect.");
             }
-            try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(decompressedStream, encoding),
-                    (int) decompSize)) {
-                result = bufferedReader.readLine();
-                return result;
+            byte[] remainingBlockBytes = new byte[(int)(decompSize-skipSize)];
+            decompressedStream.readFully(remainingBlockBytes);
+            int i = 0;
+            while(remainingBlockBytes[i]!=0){
+                i++;
             }
+            return new String(remainingBlockBytes,0,i,encoding);
         } catch (DataFormatException | IOException e) {
             throw new MDException("data decompression error.", e);
         }
